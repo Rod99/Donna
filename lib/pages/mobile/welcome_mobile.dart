@@ -39,6 +39,83 @@ class WelcomeMobile extends StatelessWidget {
                 "assets/onboarding/slide1.png",
                 width: size.width,
               ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.05,
+              child: Align(
+                child: Text(
+                  "¡Bienvenido!",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.15,
+              child: Align(
+                child: Text(
+                  "¡Estás a un solo paso de mejorar tus imágenes!",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: const Color(0xff898A8D),
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.30,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.only(
+                        left: 35,
+                        top: 20,
+                        right: 35,
+                        bottom: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                    child: Text(
+                        "Registrate",
+                      style: GoogleFonts.ubuntu(
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.only(
+                        left: 35,
+                        top: 20,
+                        right: 35,
+                        bottom: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          color: Colors.blue,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
+                    child: const Text("Iniciar sesión"),
+                  ),
+                ],
+              ),
             )
           ],
         )
