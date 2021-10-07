@@ -1,4 +1,5 @@
 import 'package:donna/pages/mobile/login_mobile.dart';
+import 'package:donna/pages/mobile/sign_up_mobile.dart';
 import 'package:donna/utils/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,26 @@ class WelcomeMobile extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-
+                      Navigator.push(
+                          context,
+                        PageRouteBuilder(
+                          transitionDuration: const Duration(seconds: 2),
+                          transitionsBuilder: (context, animation, animationTime, child) {
+                            animation = CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.elasticOut,
+                            );
+                            return ScaleTransition(
+                              alignment: Alignment.bottomCenter,
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                          pageBuilder: (context, animation, animationTime) {
+                            return const SignUpMobile();
+                          },
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.only(
@@ -100,7 +120,26 @@ class WelcomeMobile extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          transitionDuration: const Duration(seconds: 2),
+                          transitionsBuilder: (context, animation, animationTime, child) {
+                            animation = CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.elasticOut,
+                            );
+                            return ScaleTransition(
+                              alignment: Alignment.bottomCenter,
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                          pageBuilder: (context, animation, animationTime) {
+                            return const LoginMobile();
+                          },
+                        ),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.only(
@@ -111,15 +150,55 @@ class WelcomeMobile extends StatelessWidget {
                       ),
                       shape: RoundedRectangleBorder(
                         side: const BorderSide(
-                          color: Colors.blue,
+                          color: Colors.orange,
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: const Text("Iniciar sesión"),
+                    child: const Text(
+                      "Iniciar sesión",
+                      style: TextStyle(color: Colors.orange),
+                    ),
                   ),
                 ],
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.55,
+              child: Align(
+                child: Text(
+                  "O mediante redes sociales",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.65,
+              child: Align(
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  onPressed: () {
+                    final provider = Provider.of<GoogleSignInProvider>(
+                        context,
+                        listen: false,
+                    );
+                    provider.googleLogin();
+                  },
+                  icon: const FaIcon(
+                    FontAwesomeIcons.google,
+                  ),
+                  label: const Text('Iniciar sesión con Google'),
+                ),
               ),
             )
           ],
