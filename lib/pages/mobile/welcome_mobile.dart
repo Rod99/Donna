@@ -14,65 +14,117 @@ class WelcomeMobile extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting){
-            return const Center(child: CircularProgressIndicator());
-          } else if(snapshot.hasData){
-            return SafeArea(
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 15,
-                    left: 15,
-                    child: Image.asset(
-                      "assets/splash.png",
-                      width: 50,
-                      height: 50,
-                    ),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 15,
+              left: 15,
+              child: Image.asset(
+                "assets/splash.png",
+                width: 50,
+                height: 50,
+              ),
+            ),
+            Positioned(
+              top: 24,
+              left: 70,
+              child: Text(
+                "Donna",
+                style: GoogleFonts.ubuntu(
+                  fontSize: 24,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 75,
+              child: Image.asset(
+                "assets/onboarding/slide1.png",
+                width: size.width,
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.05,
+              child: Align(
+                child: Text(
+                  "¡Bienvenido!",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
                   ),
-                  Positioned(
-                    top: 24,
-                    left: 70,
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.15,
+              child: Align(
+                child: Text(
+                  "¡Estás a un solo paso de mejorar tus imágenes!",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: const Color(0xff898A8D),
+                  ),
+                ),
+              ),
+            ),
+            Positioned.fill(
+              top: size.height * 0.30,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.only(
+                        left: 35,
+                        top: 20,
+                        right: 35,
+                        bottom: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                    ),
                     child: Text(
-                      "Donna",
+                        "Registrate",
                       style: GoogleFonts.ubuntu(
-                        fontSize: 24,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                  Positioned(
-                    top: 75,
-                    child: Image.asset(
-                      "assets/onboarding/slide1.png",
-                      width: size.width,
+                  TextButton(
+                    onPressed: () {
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.only(
+                        left: 35,
+                        top: 20,
+                        right: 35,
+                        bottom: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        side: const BorderSide(
+                          color: Colors.blue,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
                     ),
+                    child: const Text("Iniciar sesión"),
                   ),
-                  Positioned(
-                    top: 25,
-                    right: 15,
-                    child: TextButton.icon(
-                      onPressed: () {
-                        final provider = Provider.of<GoogleSignInProvider>(context, listen: false);
-                        provider.signOut();
-                      }, 
-                      icon: const FaIcon(FontAwesomeIcons.powerOff, color: Colors.blue,), 
-                      label: const Text('Salir', style: TextStyle(color: Colors.blueAccent),)
-                    )
-                  )
                 ],
-              )
-            );
-          } else if(snapshot.hasError) {
-            return const Center(child: Text('Algo salió mal. Intenta iniciar sesión nuevamente.'));
-          } else {
-            return LoginMobile();
-          }
-        },
-      )
+              ),
+            )
+          ],
+        )
+      ),
     );
   }
 }
