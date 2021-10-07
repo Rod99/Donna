@@ -21,6 +21,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="donna">
+  <meta name="google-signin-client_id" content="917770205704-svfu40j0aam7vs1t3kj6lel1vca2tg9k.apps.googleusercontent.com">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <title>donna</title>
@@ -30,6 +31,24 @@
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3h1aVRD2b3vKkqgNaFzhP-6faNreL3jQ",
+      authDomain: "donna-3a404.firebaseapp.com",
+      projectId: "donna-3a404",
+      storageBucket: "donna-3a404.appspot.com",
+      messagingSenderId: "917770205704",
+      appId: "1:917770205704:web:219d35bd1ee8461687efbd",
+      measurementId: "G-27WYHDC81Z"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-auth.js"></script>
   <script>
     var serviceWorkerVersion = null;
     var scriptLoaded = false;
