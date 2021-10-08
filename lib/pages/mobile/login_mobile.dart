@@ -1,3 +1,4 @@
+import 'package:donna/utils/mobile/login_wave.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -6,13 +7,24 @@ class LoginMobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Scaffold(
-      body: Center(
-        child: Text(
-          'Hola, soy el login',
-          style: GoogleFonts.ubuntu(),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            Positioned(
+              top: 30,
+              left: 10,
+              right: 10,
+              child: Image.asset(
+                "assets/login.png",
+                width: size.width,
+              ),
+            ),
+            WaveLogin()
+          ],
         ),
-      ),
+      )
     );
   }
 }
