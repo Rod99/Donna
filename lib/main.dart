@@ -1,6 +1,8 @@
 import 'package:donna/pages/desktop/home_sreen_desktop.dart';
 import 'package:donna/pages/mobile/on_boarding_mobile.dart';
 import 'package:donna/pages/tablet/on_boarding_tablet.dart';
+import 'package:donna/service_locator.dart';
+import 'package:donna/utils/constants.dart';
 import 'package:donna/utils/responsive_layout.dart';
 import 'package:donna/utils/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -11,6 +13,7 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  setupServices();
   runApp(MyApp());
 }
 
@@ -34,7 +37,7 @@ class MyApp extends StatelessWidget {
         title: 'Donna',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: themePrimary,
         ),
         home: ResponsiveLayout(
             mobileBody: OnBoardingMobile(),

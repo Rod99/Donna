@@ -1,5 +1,7 @@
+import 'package:donna/pages/mobile/home_mobile.dart';
 import 'package:donna/pages/mobile/welcome_mobile.dart';
 import 'package:donna/utils/mobile/waves.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 
@@ -55,54 +57,67 @@ class OnBoardingMobile extends StatelessWidget {
 
     double height = MediaQuery.of(context).size.height;
 
-    return SafeArea(
-      child: Scaffold(
-        body: IntroductionScreen(
-          globalFooter: const WavesMobile(),
-          controlsPadding: EdgeInsets.only(
-            bottom: height * 0.71,
-            left: 8,
-            right: 8,
-          ),
-          pages: getPages(),
-          showSkipButton: true,
-          onDone: () {
-            Navigator.push(
-                context,
-                PageRouteBuilder(
-                  transitionDuration: const Duration(seconds: 2),
-                  transitionsBuilder: (context, animation, animationTime, child) {
-                    animation = CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.elasticOut,
-                    );
-                    return ScaleTransition(
-                      alignment: Alignment.topRight,
-                      scale: animation,
-                      child: child,
-                    );
-                  },
-                  pageBuilder: (context, animation, animationTime) {
-                    return const WelcomeMobile();
-                  },
+    return StreamBuilder(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasData) {
+          return const HomeMobile();
+        } else if (snapshot.hasError){
+          return const Center(child: Text('Ocurrió un error. Inicia sesión nuevamente.'));
+        } else {
+          return SafeArea(
+            child: Scaffold(
+              body: IntroductionScreen(
+                globalFooter: const WavesMobile(),
+                controlsPadding: EdgeInsets.only(
+                  bottom: height * 0.71,
+                  left: 8,
+                  right: 8,
                 ),
-            );
-          },
-          skip: const Text('Skip'),
-          next: const Icon(Icons.navigate_next),
-          done: const Text("¡Estoy listo!", style: TextStyle(fontWeight: FontWeight.w600)),
-          dotsDecorator: DotsDecorator(
-            size: const Size.square(10.0),
-            activeSize: const Size(20.0, 10.0),
-            activeColor: Colors.orange,
-            color: Colors.blue,
-            spacing: const EdgeInsets.symmetric(horizontal: 3.0),
-            activeShape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25.0),
+                pages: getPages(),
+                showSkipButton: true,
+                onDone: () {
+                  Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        transitionDuration: const Duration(seconds: 2),
+                        transitionsBuilder: (context, animation, animationTime, child) {
+                          animation = CurvedAnimation(
+                            parent: animation,
+                            curve: Curves.elasticOut,
+                          );
+                          return ScaleTransition(
+                            alignment: Alignment.topRight,
+                            scale: animation,
+                            child: child,
+                          );
+                        },
+                        pageBuilder: (context, animation, animationTime) {
+                          return WelcomeMobile();
+                        },
+                      ),
+                  );
+                },
+                skip: const Text('Skip'),
+                next: const Icon(Icons.navigate_next),
+                done: const Text("¡Estoy listo!", style: TextStyle(fontWeight: FontWeight.w600)),
+                dotsDecorator: DotsDecorator(
+                  size: const Size.square(10.0),
+                  activeSize: const Size(20.0, 10.0),
+                  activeColor: Colors.orange,
+                  color: Colors.blue,
+                  spacing: const EdgeInsets.symmetric(horizontal: 3.0),
+                  activeShape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25.0),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
+          );
+        }
+      }
     );
   }
 }
