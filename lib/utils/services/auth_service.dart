@@ -1,5 +1,9 @@
+import 'package:donna/service_locator.dart';
+import 'package:donna/utils/models/user.dart';
+import 'package:donna/utils/services/storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthenticationService {
@@ -7,28 +11,20 @@ class AuthenticationService {
 
   AuthenticationService(this._firebaseAuth);
 
+  User? get currentUser => _firebaseAuth.currentUser;
   Stream<User?> get authStateChanges => _firebaseAuth.authStateChanges();
 
-  Future<String> signIn({required String email, required String password}) async{
-    try {
-      await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      return "Sign In";
-    } on FirebaseAuthException catch (e) {
-      return e.message.toString();
-    }
+  Future signIn({required String email, required String password}) async{
+    return _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<String> signUp({required String email, required String password}) async{
-    try {
-      await _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
-      return "Sign Up";
-    } on FirebaseAuthException catch (e) {
-      return e.message.toString();
-    }
+  Future signUp({required String name, required String email, required String password}) async{
+    return _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
   }
 }
 
 class GoogleSignInProvider extends ChangeNotifier {
+  final StorageService _storageService = getIt<StorageService>();
   final googleSignIn = GoogleSignIn();
 
   GoogleSignInAccount? _user;
@@ -38,7 +34,7 @@ class GoogleSignInProvider extends ChangeNotifier {
     try {
       final googleUser = await googleSignIn.signIn();
 
-      if(googleUser == null) return;
+      if(googleUser == null) return null;
       _user = googleUser;
 
       final googleAuth = await googleUser.authentication;
@@ -48,9 +44,18 @@ class GoogleSignInProvider extends ChangeNotifier {
         idToken: googleAuth.idToken
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      final authResult = await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserModel userModel = UserModel(
+        id: authResult.user?.uid,
+        name: googleUser.displayName,
+        email: googleUser.email,
+        imageUrl: googleUser.photoUrl
+      );
+      _storageService.createUser(userModel);
+      Fluttertoast.showToast(msg: 'Inicio de sesión con Google exitoso. ¡Bienvenido!');
+      return authResult;
     } catch (e) {
-      print(e.toString());
+      Fluttertoast.showToast(msg: 'Ocurrió un error al iniciar sesión con Google. No pudo crearse la cuenta, inténtelo nuevamente');
     }
     notifyListeners();
   }

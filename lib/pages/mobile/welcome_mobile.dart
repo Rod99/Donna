@@ -1,14 +1,23 @@
+import 'package:donna/pages/mobile/home_mobile.dart';
 import 'package:donna/pages/mobile/login_mobile.dart';
 import 'package:donna/pages/mobile/sign_up_mobile.dart';
+import 'package:donna/service_locator.dart';
 import 'package:donna/utils/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class WelcomeMobile extends StatelessWidget {
-  const WelcomeMobile({Key? key}) : super(key: key);
+class WelcomeMobile extends StatefulWidget {
+
+  @override
+  _WelcomeMobileState createState() => _WelcomeMobileState();
+}
+
+class _WelcomeMobileState extends State<WelcomeMobile> {
+  final GoogleSignInProvider _googleService = getIt<GoogleSignInProvider>();
 
   @override
   Widget build(BuildContext context) {
@@ -112,9 +121,10 @@ class WelcomeMobile extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                        "Registrate",
+                        "Registrarme",
                       style: GoogleFonts.ubuntu(
                         fontSize: 16,
+                        color: Colors.white
                       ),
                     ),
                   ),
@@ -170,7 +180,7 @@ class WelcomeMobile extends StatelessWidget {
                 child: Text(
                   "O mediante redes sociales",
                   style: GoogleFonts.ubuntu(
-                    fontSize: 16,
+                    fontSize: 14,
                     fontStyle: FontStyle.italic,
                     color: Colors.black,
                   ),
@@ -187,23 +197,45 @@ class WelcomeMobile extends StatelessWidget {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  onPressed: () {
-                    final provider = Provider.of<GoogleSignInProvider>(
-                        context,
-                        listen: false,
+                  onPressed: () async {
+                    await _googleService.googleLogin().then(
+                      (value) => {
+                        if(value != null){
+                          Navigator.pushAndRemoveUntil( 
+                            (context), 
+                            MaterialPageRoute(builder: (context) => const HomeMobile()),
+                            (route) => false
+                          )
+                        }
+                      }
                     );
-                    provider.googleLogin();
                   },
                   icon: const FaIcon(
                     FontAwesomeIcons.google,
+                    color: Colors.white,
                   ),
-                  label: const Text('Iniciar sesión con Google'),
+                  label: const Text('Iniciar sesión con Google', style: TextStyle(color: Colors.white),),
                 ),
               ),
             )
           ],
         )
-      ),
+      )
     );
+  }
+
+  Future googleSignIn() async {
+    try {
+      await _googleService.googleLogin()
+        .then((value) => {
+          Navigator.pushAndRemoveUntil( 
+            (context), 
+            MaterialPageRoute(builder: (context) => const HomeMobile()),
+            (route) => false
+          )
+        });
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
+    }
   }
 }
