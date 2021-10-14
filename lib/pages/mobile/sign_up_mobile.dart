@@ -321,7 +321,7 @@ class _SignUpMobileState extends State<SignUpMobile> {
       id: user!.uid.toString(),
       name: name,
       email: user.email,
-      imageUrl: "https://avatar.oxro.io/avatar.svg?size=128&background=ff9a00&color=fff&name=${name.substring(0, 2)}"
+      imageUrl: "https://ui-avatars.com/api/?background=ff9a00&color=fff&size=128&name=${name.toUpperCase().substring(0, 1)}+${name.toUpperCase().substring(1, 2)}"
     );
 
     try {

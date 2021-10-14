@@ -2,6 +2,7 @@ import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.da
 import 'package:donna/pages/mobile/profile_mobile.dart';
 import 'package:donna/pages/mobile/welcome_mobile.dart';
 import 'package:donna/service_locator.dart';
+import 'package:donna/utils/constants.dart';
 import 'package:donna/utils/models/user.dart';
 import 'package:donna/utils/services/auth_service.dart';
 import 'package:donna/utils/services/storage_service.dart';
@@ -53,19 +54,47 @@ class _HomeMobileState extends State<HomeMobile> {
       Icons.power_settings_new,
     ];
     final List<Widget> _widgetOptions = <Widget>[
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/home.png",
-            width: size.width * .9,
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Bienvenido(a)",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 30,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Image.asset(
+                "assets/home.png",
+                width: size.width * .9,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+                child: Text(
+                  "Busca en tu galería o archivos una imagen que desees mejorar y déjanos el resto a nosotros.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 14,
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       const Text(
-        'Index 1: Galeria',
+        'Módulo de Mejora de Imágenes',
       ),
-      ProfileMobile(currentUser.name, currentUser.email)
+      ProfileMobile(user: currentUser),
+      const CircularProgressIndicator()
     ];
 
     return Scaffold(

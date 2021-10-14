@@ -147,7 +147,7 @@ class _LoginMobileState extends State<LoginMobile> {
                         ),
                         GestureDetector(
                           onTap: (){
-                            
+                            _passwordResetDialog(context);
                           },
                           child: Text(
                             "¿Olvidaste tu contraseña?", 
@@ -280,5 +280,73 @@ class _LoginMobileState extends State<LoginMobile> {
         Fluttertoast.showToast(msg: message);
       }
     }
+  }
+
+  void _passwordResetDialog(BuildContext context) {
+
+    final TextEditingController emailController2 = TextEditingController();
+
+    final emailField2 = TextFormField(
+      controller: emailController2,
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.mail),
+        contentPadding: const EdgeInsets.fromLTRB(20, 15, 20, 15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10)
+        ),
+        labelText: 'Email',
+        hintText: 'Ingresa tu correo electrónico',
+      ),
+      onSaved: (value) {
+        emailController2.text = value!;
+      },
+      textInputAction: TextInputAction.done,
+    );
+
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => AlertDialog(
+        title: const Text("Ingresa tu email"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text("Se enviará un correo electrónico con la información necesaria para actualizar la contraseña."),
+            const SizedBox(height: 10),
+            emailField2,
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            }, 
+            style: ElevatedButton.styleFrom(
+              primary: primary,
+              onPrimary: Colors.white,
+              textStyle: const TextStyle(color: Colors.white),
+            ),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _authService.resetPassword(email: emailController2.text.trim()).then((value) => {
+                Navigator.pop(context)
+              });
+            },
+            style: ElevatedButton.styleFrom(
+              primary: secondary,
+              onPrimary: Colors.white,
+              textStyle: const TextStyle(color: Colors.white),
+            ), 
+            child: const Text("Confirmar"),
+          )
+        ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      )
+    );
   }
 }
