@@ -23,8 +23,10 @@ environment:
 dependencies:
   animated_splash_screen: ^1.1.0
   animated_bottom_navigation_bar: ^0.3.2
+  camera_camera: ^2.0.2
   flutter:
     sdk: flutter
+  flimer: ^1.0.1
   google_fonts: ^2.1.0
   introduction_screen: ^2.1.0
   lint: ^1.0.0
