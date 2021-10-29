@@ -31,7 +31,7 @@ class _WelcomeMobileState extends State<WelcomeMobile> {
               top: 15,
               left: 15,
               child: Image.asset(
-                "assets/splash.png",
+                "assets/donna.png",
                 width: 50,
                 height: 50,
               ),
@@ -175,7 +175,7 @@ class _WelcomeMobileState extends State<WelcomeMobile> {
               ),
             ),
             Positioned.fill(
-              top: size.height * 0.55,
+              top: size.height * 0.52,
               child: Align(
                 child: Text(
                   "O mediante redes sociales",
@@ -192,6 +192,12 @@ class _WelcomeMobileState extends State<WelcomeMobile> {
               child: Align(
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      top: 15,
+                      right: 20,
+                      bottom: 15,
+                    ),
                     primary: Colors.red,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),

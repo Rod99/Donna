@@ -21,6 +21,32 @@ class AuthenticationService {
   Future signUp({required String name, required String email, required String password}) async{
     return _firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
   }
+
+  Future resetPassword({required String email}) async {
+    try {
+      final response = await _firebaseAuth.sendPasswordResetEmail(email: email);
+      Fluttertoast.showToast(msg: "Se envió un email de cambio de contraseña al correo electrónico proporcionado.", timeInSecForIosWeb: 4);
+      return response;
+    } on FirebaseAuthException catch (e) {
+      var message = '';
+      switch (e.code) {
+        case 'invalid-email':
+          message = 'El email proporcionado no es un email válido.';
+          break;
+        case 'user-not-found':
+          message = 'No fue encontrado ningún usuario con este correo electrónico. Por favor crea una cuenta.';
+          break;
+        case 'missing-continue-uri':
+          message = 'Un URL continuo debe ser provisto en la petición.';
+          break;
+        case 'unauthorized-continue-uri':
+          message = 'El dominio del URL continuo no está en los dominios permitidos, ingrésalo a la whitelist de Firebase.';
+          break;
+        default:
+      }
+      Fluttertoast.showToast(msg: message, timeInSecForIosWeb: 4);
+    }
+  }
 }
 
 class GoogleSignInProvider extends ChangeNotifier {

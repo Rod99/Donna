@@ -1,4 +1,5 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:camera_camera/camera_camera.dart';
 import 'package:donna/pages/mobile/profile_mobile.dart';
 import 'package:donna/pages/mobile/welcome_mobile.dart';
 import 'package:donna/service_locator.dart';
@@ -6,11 +7,10 @@ import 'package:donna/utils/models/user.dart';
 import 'package:donna/utils/services/auth_service.dart';
 import 'package:donna/utils/services/storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flimer/flimer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 
 class HomeMobile extends StatefulWidget {
   const HomeMobile({ Key? key }) : super(key: key);
@@ -53,19 +53,47 @@ class _HomeMobileState extends State<HomeMobile> {
       Icons.power_settings_new,
     ];
     final List<Widget> _widgetOptions = <Widget>[
-      Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            "assets/home.png",
-            width: size.width * .9,
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "Bienvenido(a)",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 30,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Image.asset(
+                "assets/home.png",
+                width: size.width * .9,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+                child: Text(
+                  "Busca en tu galería o archivos una imagen que desees mejorar y déjanos el resto a nosotros.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 14,
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       const Text(
-        'Index 1: Galeria',
+        'Módulo de Mejora de Imágenes',
       ),
-      ProfileMobile(currentUser.name, currentUser.email)
+      ProfileMobile(user: currentUser),
+      const CircularProgressIndicator()
     ];
 
     return Scaffold(
@@ -77,12 +105,21 @@ class _HomeMobileState extends State<HomeMobile> {
             backgroundColor: Colors.blue,
             child: const Icon(Icons.camera_alt_outlined),
             onTap: () {
+              openCamera();
             },
           ),
           SpeedDialChild(
             backgroundColor: Colors.blue,
             child: const Icon(Icons.image),
-            onTap: () {
+            onTap: () async {
+              final List<XFile>? files = await flimer.pickImages();
+              if (files == null || files.isEmpty) {
+                // Operation was canceled by the user.
+                return;
+              }
+
+              // Aqui es donde vamos a mandar a la API
+              print("Selected images : ${files.length}");
             },
           ),
         ],
@@ -123,6 +160,19 @@ class _HomeMobileState extends State<HomeMobile> {
         ),
       },
     );
+  }
+
+  void openCamera() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (_) => CameraCamera(
+              onFile: (file) {
+                print(file);
+                Navigator.pop(context);
+                setState(() {});
+              },
+            )));
   }
 
 

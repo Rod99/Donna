@@ -1,10 +1,23 @@
+import 'package:donna/pages/mobile/edit_profile_mobile.dart';
+import 'package:donna/utils/constants.dart';
 import 'package:donna/utils/mobile/header_waves.dart';
+import 'package:donna/utils/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:slimy_card/slimy_card.dart';
 
-class ProfileMobile extends StatelessWidget {
-  const ProfileMobile(String? name, String? email, {Key? key}) : super(key: key);
+class ProfileMobile extends StatefulWidget {
+  UserModel user;
+
+  ProfileMobile({Key? key, required this.user}) : super(key: key);
+
+  @override
+  _ProfileMobileState createState() => _ProfileMobileState();
+}
+
+class _ProfileMobileState extends State<ProfileMobile> {
+
+  UserModel currentUser = UserModel(); 
 
   @override
   Widget build(BuildContext context) {
@@ -23,13 +36,30 @@ class ProfileMobile extends StatelessWidget {
               fontStyle: FontStyle.normal,
               fontWeight: FontWeight.w100,
             ),),
-      ),
+        ),
         Positioned(
-          top: 100,
+          top: 90,
+          child: CircleAvatar(
+            radius: 40,
+            backgroundImage: NetworkImage(widget.user.imageUrl!),
+          ),
+        ),
+        Positioned(
+          top: 200,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () async {
+              final newUser = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditProfilePage(usuario: widget.user)),
+              );
+              if(newUser != null){
+                setState(() {
+                  widget.user = newUser as UserModel;
+                });
+              }
+            },
             style: ElevatedButton.styleFrom(
-              primary: Colors.orange,
+              primary: secondary,
               padding: const EdgeInsets.only(
                 left: 35,
                 top: 20,
@@ -41,7 +71,7 @@ class ProfileMobile extends StatelessWidget {
               ),
             ),
             child: Text(
-              "Rodrigo Vera",
+              widget.user.name!,
               style: GoogleFonts.ubuntu(
                   fontSize: 16,
                   color: Colors.white,
@@ -50,21 +80,21 @@ class ProfileMobile extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 165,
+          top: 270,
           child: Text(
-            'rodrigoveraescom@gmail.com',
+            widget.user.email!,
             style: GoogleFonts.ubuntu(
               fontSize: 18,
-              color: Colors.white,
+              color: Colors.blue,
               fontStyle: FontStyle.italic,
-              fontWeight: FontWeight.w100,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
         Positioned(
           top: 300,
           child: SlimyCard(
-            color: Colors.orange,
+            color: secondary,
             width: size.width * 0.8,
             topCardHeight: 250,
             bottomCardHeight: 100,
@@ -149,7 +179,7 @@ class ProfileMobile extends StatelessWidget {
                 "Premium",
                 style: GoogleFonts.ubuntu(
                   fontSize: 16,
-                  color: Colors.orangeAccent,
+                  color: secondary,
                 ),
               ),
             ),
