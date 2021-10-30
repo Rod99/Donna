@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:io' as Io;
+
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:camera_camera/camera_camera.dart';
 import 'package:donna/pages/mobile/profile_mobile.dart';
@@ -5,9 +9,11 @@ import 'package:donna/pages/mobile/welcome_mobile.dart';
 import 'package:donna/service_locator.dart';
 import 'package:donna/utils/models/user.dart';
 import 'package:donna/utils/services/auth_service.dart';
+import 'package:donna/utils/services/images_service.dart';
 import 'package:donna/utils/services/storage_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flimer/flimer.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,6 +30,7 @@ class _HomeMobileState extends State<HomeMobile> {
   final AuthenticationService _authService = getIt<AuthenticationService>();
   final GoogleSignInProvider _googleService = getIt<GoogleSignInProvider>();
   final StorageService _storageService = getIt<StorageService>();
+  final ImageService _imageService = getIt<ImageService>();
 
 
   User? user = FirebaseAuth.instance.currentUser;
@@ -118,8 +125,31 @@ class _HomeMobileState extends State<HomeMobile> {
                 return;
               }
 
+              // Mostrar las imágenes que seleccionó y tal vez poner una opción de "Mejorar" y otra "Cancelar" en el dialog
+              await showDialog(context: context, builder: (context) => MultipleImagesDisplay(files));
+
+              final List<String> imagesBase64 = [];
+
+              for (final image in files) {
+                print(image.name);
+                final imageBytes = await image.readAsBytes();
+                final imageBase64 = base64Encode(imageBytes);
+                print(imageBase64);
+                imagesBase64.add(imageBase64);
+              }
+
               // Aqui es donde vamos a mandar a la API
-              print("Selected images : ${files.length}");
+              await _imageService.uploadImages(imagesBase64);
+
+              // Proceso inverso para cuando se reciban
+              final List<Image> images = [];
+
+              for (var i = 0; i < imagesBase64.length; i++) {
+                final imageDecode = base64Decode(imagesBase64[i]);
+                images.add(Image.memory(imageDecode));
+              }
+
+              await showDialog(context: context, builder: (context) => MultipleBase64ImagesDisplay(images));
             },
           ),
         ],
@@ -174,6 +204,78 @@ class _HomeMobileState extends State<HomeMobile> {
               },
             )));
   }
+}
 
+class MultipleImagesDisplay extends StatelessWidget {
+  /// The files containing the images
+  final List<XFile> files;
 
+  /// Default Constructor
+  MultipleImagesDisplay(this.files);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Imágenes seleccionadas'),
+      // On web the filePath is a blob url
+      // while on other platforms it is a system path.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ...files.map(
+              (file) => Flexible(
+                  child: kIsWeb
+                      ? Image.network(file.path)
+                      : Image.file(File(file.path))),
+            )
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Close'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class MultipleBase64ImagesDisplay extends StatelessWidget {
+  /// The files containing the images
+  final List<Image> images;
+
+  /// Default Constructor
+  MultipleBase64ImagesDisplay(this.images);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Imágenes Base64 seleccionadas'),
+      // On web the filePath is a blob url
+      // while on other platforms it is a system path.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            ...images.map(
+              (image) => Flexible(
+                  child: image,),
+            )
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Close'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ],
+    );
+  }
 }
