@@ -5,6 +5,7 @@ import 'dart:io' as Io;
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:camera_camera/camera_camera.dart';
 import 'package:donna/pages/mobile/profile_mobile.dart';
+import 'package:donna/pages/mobile/save_images.dart';
 import 'package:donna/pages/mobile/welcome_mobile.dart';
 import 'package:donna/service_locator.dart';
 import 'package:donna/utils/models/user.dart';
@@ -17,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tcard/tcard.dart';
 
 class HomeMobile extends StatefulWidget {
   const HomeMobile({ Key? key }) : super(key: key);
@@ -131,21 +133,19 @@ class _HomeMobileState extends State<HomeMobile> {
               final List<String> imagesBase64 = [];
 
               for (final image in files) {
-                print(image.name);
                 final imageBytes = await image.readAsBytes();
                 final imageBase64 = base64Encode(imageBytes);
-                print(imageBase64);
                 imagesBase64.add(imageBase64);
               }
 
               // Aqui es donde vamos a mandar a la API
-              await _imageService.uploadImages(imagesBase64);
-
+              final List<String> imagenes = await _imageService.uploadImages(imagesBase64);
+              print(imagenes);
               // Proceso inverso para cuando se reciban
               final List<Image> images = [];
 
-              for (var i = 0; i < imagesBase64.length; i++) {
-                final imageDecode = base64Decode(imagesBase64[i]);
+              for (var i = 0; i < imagenes.length; i++) {
+                final imageDecode = base64Decode(imagenes[i]);
                 images.add(Image.memory(imageDecode));
               }
 
@@ -198,7 +198,6 @@ class _HomeMobileState extends State<HomeMobile> {
         MaterialPageRoute(
             builder: (_) => CameraCamera(
               onFile: (file) {
-                print(file);
                 Navigator.pop(context);
                 setState(() {});
               },
@@ -254,7 +253,7 @@ class MultipleBase64ImagesDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Imágenes Base64 seleccionadas'),
+      title: Text('Imágenes Procesadas'),
       // On web the filePath is a blob url
       // while on other platforms it is a system path.
       content: SingleChildScrollView(
