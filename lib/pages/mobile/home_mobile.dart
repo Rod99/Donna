@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:io' as Io;
+import 'dart:typed_data';
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:camera_camera/camera_camera.dart';
@@ -17,6 +17,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:tcard/tcard.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 class HomeMobile extends StatefulWidget {
   const HomeMobile({ Key? key }) : super(key: key);
@@ -126,30 +129,34 @@ class _HomeMobileState extends State<HomeMobile> {
               }
 
               // Mostrar las imágenes que seleccionó y tal vez poner una opción de "Mejorar" y otra "Cancelar" en el dialog
-              await showDialog(context: context, builder: (context) => MultipleImagesDisplay(files));
+              if (await showDialog(context: context, builder: (context) => MultipleImagesDisplay(files)) == false) {
+                return;
+              }
 
               final List<String> imagesBase64 = [];
 
               for (final image in files) {
-                print(image.name);
                 final imageBytes = await image.readAsBytes();
                 final imageBase64 = base64Encode(imageBytes);
-                print(imageBase64);
                 imagesBase64.add(imageBase64);
               }
 
               // Aqui es donde vamos a mandar a la API
-              await _imageService.uploadImages(imagesBase64);
-
+              final List<String> imagenes = await _imageService.uploadImages(imagesBase64);
+              print(imagenes);
               // Proceso inverso para cuando se reciban
               final List<Image> images = [];
 
-              for (var i = 0; i < imagesBase64.length; i++) {
-                final imageDecode = base64Decode(imagesBase64[i]);
+              for (var i = 0; i < imagenes.length; i++) {
+                final imageDecode = base64Decode(imagenes[i]);
                 images.add(Image.memory(imageDecode));
               }
 
-              await showDialog(context: context, builder: (context) => MultipleBase64ImagesDisplay(images));
+              // await showDialog(context: context, builder: (context) => MultipleBase64ImagesDisplay(images));
+              await showDialog(
+                  context: context,
+                  builder: (context) => CardImagesDisplay(images, imagenes),
+              );
             },
           ),
         ],
@@ -198,7 +205,6 @@ class _HomeMobileState extends State<HomeMobile> {
         MaterialPageRoute(
             builder: (_) => CameraCamera(
               onFile: (file) {
-                print(file);
                 Navigator.pop(context);
                 setState(() {});
               },
@@ -234,9 +240,15 @@ class MultipleImagesDisplay extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          child: const Text('Close'),
+          child: const Text('Aceptar'),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, true);
+          },
+        ),
+        TextButton(
+          child: const Text('Cancelar'),
+          onPressed: () {
+            Navigator.pop(context, false);
           },
         ),
       ],
@@ -254,7 +266,7 @@ class MultipleBase64ImagesDisplay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Imágenes Base64 seleccionadas'),
+      title: Text('Imágenes Procesadas'),
       // On web the filePath is a blob url
       // while on other platforms it is a system path.
       content: SingleChildScrollView(
@@ -276,6 +288,72 @@ class MultipleBase64ImagesDisplay extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+}
+
+class CardImagesDisplay extends StatelessWidget {
+  /// The files containing the images
+  final List<Image> images;
+  final List<String> images_base64;
+  /// Default Constructor
+  CardImagesDisplay(this.images, this.images_base64);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      // On web the filePath is a blob url
+      // while on other platforms it is a system path.
+      backgroundColor: Colors.transparent,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            TCard(
+              size: const Size(256, 256),
+              onEnd: () {
+                Navigator.pop(context);
+              },
+              onForward: (index, info) async {
+                Uint8List bytes = base64.decode(images_base64[index-1]);
+                String dir = (await getExternalStorageDirectory())!.path;
+                File file = File(
+                    "$dir/${DateTime.now().millisecondsSinceEpoch}.jpg",);
+                print(dir);
+                await file.writeAsBytes(bytes);
+                GallerySaver.saveImage(file.path);
+              },
+              cards: List.generate(
+                images.length, (index) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16.0),
+                      boxShadow: const [
+                        BoxShadow(
+                          offset: Offset(0, 17),
+                          blurRadius: 23.0,
+                          spreadRadius: -13.0,
+                          color: Colors.black54,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16.0),
+                          child: images[index],
+                        ),
+                      ],
+                    ),
+                  );
+            }
+            ),
+            )
+          ]
+        ),
+      ),
     );
   }
 }
