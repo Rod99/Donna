@@ -37,7 +37,7 @@ class _HomeMobileState extends State<HomeMobile> {
   final StorageService _storageService = getIt<StorageService>();
   final ImageService _imageService = getIt<ImageService>();
 
-
+  bool isUploading = false;
   User? user = FirebaseAuth.instance.currentUser;
   UserModel currentUser = UserModel();
 
@@ -145,7 +145,16 @@ class _HomeMobileState extends State<HomeMobile> {
               }
 
               // Aqui es donde vamos a mandar a la API
+              setState(() {
+                isUploading = true;
+              });
+
               final List<String> imagenes = await _imageService.uploadImages(imagesBase64);
+
+              setState(() {
+                isUploading = false;
+              });
+
               // Proceso inverso para cuando se reciban
               final List<Image> images = [];
 
@@ -185,11 +194,54 @@ class _HomeMobileState extends State<HomeMobile> {
           }
         }),
       ),
-      body: Container(
-        child: Center(
-          child: _widgetOptions.elementAt(_currentIndex),
+      body: isUploading 
+        ? Container(
+          padding: EdgeInsets.all(16),
+          color:  Colors.white,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    "Mejorando Imágenes",
+                    style: GoogleFonts.ubuntu(
+                      fontSize: 30,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Image.asset(
+                  "assets/upload.png",
+                  width: size.width,
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(strokeWidth: 3, color: secondary,),
+                ),
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    'Las imágenes que seleccionaste están siendo procesadas, por favor espera a que el proceso termine para observar el resultado.',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  )
+                ),
+              ],
+            ),
+          ),
         )
-      ),
+        : Container(
+          child: Center(
+            child: _widgetOptions.elementAt(_currentIndex),
+          )
+        ,)
     );
   }
 
