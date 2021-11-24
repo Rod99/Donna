@@ -12,9 +12,8 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-
 def load_model():
-    return tf.keras.models.load_model('/home/rodrigovera/Escritorio/model/Model')
+    return tf.keras.models.load_model('/Model')
 
 
 def create_output(model, input):
@@ -35,6 +34,7 @@ def upload():
         # Lo siguiente devuelve un arreglo de base64, que puede contener desde 1 hasta n imagenes
         imagesFiles = request.json[
             'images']  # Aqui por alguna razon me lo detecta como string, no como base64, no se porque
+
         for image in imagesFiles:
             # Creamos un archivo temporal a partir de la cadena base64
             with open(NAMETEMP, 'wb') as fh:
@@ -44,7 +44,6 @@ def upload():
             buffered = BytesIO()
             imagen.save(buffered, format="JPEG")
             img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
-            print(img_str)
             imagesResults.append(img_str)
             # Eliminamos la imagen temporal
             os.remove(NAMETEMP)
