@@ -100,7 +100,7 @@ class OnBoardingMobile extends StatelessWidget {
                       ),
                   );
                 },
-                skip: const Text('Skip'),
+                skip: const Text('Omitir'),
                 next: const Icon(Icons.navigate_next),
                 done: const Text("¡Estoy listo!", style: TextStyle(fontWeight: FontWeight.w600)),
                 dotsDecorator: DotsDecorator(
