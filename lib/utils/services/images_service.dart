@@ -8,7 +8,7 @@ class ImageService {
   Future<List<String>> uploadImages(List<String> images) async {
      //show your own loading or progressing code here
 
-    String uploadurl = "http://574e-2806-2f0-9080-f2f-d0bf-1088-75b-72ad.ngrok.io/upload";
+    String uploadurl = "http://7dd7-2806-2f0-9080-f2f-49b2-863e-7ac0-540.ngrok.io/upload";
 
     try{
       final response = await http.post(
