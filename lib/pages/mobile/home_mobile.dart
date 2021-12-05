@@ -60,8 +60,8 @@ class _HomeMobileState extends State<HomeMobile> {
     final size = MediaQuery.of(context).size;
     final iconList = <IconData>[
       Icons.home,
-      Icons.image_rounded,
       Icons.person_rounded,
+      Icons.info,
       Icons.power_settings_new,
     ];
     final List<Widget> _widgetOptions = <Widget>[
@@ -101,10 +101,43 @@ class _HomeMobileState extends State<HomeMobile> {
           ),
         ),
       ),
-      const Text(
-        'Módulo de Mejora de Imágenes',
-      ),
       ProfileMobile(user: currentUser),
+      Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/love.png",
+                width: size.width * .9,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "¡Gracias por usar Donna!",
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 24,
+                    fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
+                child: Text(
+                  "Desarrollada por los estudiantes de la ESCOM:\n\nRicardo Alcaraz Fraga\nSamuel Eduardo Benitez Miranda\nJosé Rodrigo Cruz Vera",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 14,
+                    fontStyle: FontStyle.normal,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       const CircularProgressIndicator()
     ];
 
