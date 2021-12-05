@@ -131,47 +131,7 @@ class _HomeMobileState extends State<HomeMobile> {
                 return;
               }
 
-              // Mostrar las imágenes que seleccionó y tal vez poner una opción de "Mejorar" y otra "Cancelar" en el dialog
-              if (await showDialog(context: context, builder: (context) => MultipleImagesDisplay(files)) == false) {
-                return;
-              }
-
-              final List<String> imagesBase64 = [];
-
-              for (final image in files) {
-                final imageBytes = await image.readAsBytes();
-                final imageBase64 = base64Encode(imageBytes);
-                imagesBase64.add(imageBase64);
-              }
-
-              // Aqui es donde vamos a mandar a la API
-              setState(() {
-                isUploading = true;
-              });
-
-              final List<String> imagenes = await _imageService.uploadImages(imagesBase64);
-
-              setState(() {
-                isUploading = false;
-              });
-
-              // Proceso inverso para cuando se reciban
-              final List<Image> images = [];
-
-              if(imagenes.isNotEmpty){
-                for (var i = 0; i < imagenes.length; i++) {
-                  final imageDecode = base64Decode(imagenes[i]);
-                  images.add(Image.memory(imageDecode));
-                }
-
-                // await showDialog(context: context, builder: (context) => MultipleBase64ImagesDisplay(images));
-                await showDialog(
-                    context: context,
-                    builder: (context) => CardImagesDisplay(images, imagenes),
-                );
-              } else {
-                return;
-              }
+              improveImages(files);
             },
           ),
         ],
@@ -264,9 +224,67 @@ class _HomeMobileState extends State<HomeMobile> {
             builder: (_) => CameraCamera(
               onFile: (file) {
                 Navigator.pop(context);
+                improveImages(file);
                 setState(() {});
               },
             )));
+  }
+
+  void improveImages(dynamic fotos) async {
+    // Mostrar las imágenes que seleccionó y tal vez poner una opción de "Mejorar" y otra "Cancelar" en el dialog
+    final List<String> imagesBase64 = [];
+
+    if(fotos is List<XFile>){
+      final List<XFile> photos = fotos;
+      if (await showDialog(context: context, builder: (context) => MultipleImagesDisplay(photos)) == false) {
+        return;
+      }
+      for (final image in photos) {
+        final imageBytes = await image.readAsBytes();
+        final imageBase64 = base64Encode(imageBytes);
+        imagesBase64.add(imageBase64);
+      }
+    } else if (fotos is File) {
+      final File photo = fotos;
+      if (await showDialog(context: context, builder: (context) => SinglePhotoDisplay(photo)) == false) {
+        return;
+      }
+      final imageBytes = await photo.readAsBytes();
+      final imageBase64 = base64Encode(imageBytes);
+      imagesBase64.add(imageBase64);
+    } else {
+      return;
+    }    
+
+    // Aqui es donde vamos a mandar a la API
+    setState(() {
+      isUploading = true;
+    });
+
+    final List<String> imagenes = await _imageService.uploadImages(imagesBase64);
+
+    setState(() {
+      isUploading = false;
+    });
+
+    // Proceso inverso para cuando se reciban
+    final List<Image> images = [];
+
+    if(imagenes.isNotEmpty){
+      for (var i = 0; i < imagenes.length; i++) {
+        final imageDecode = base64Decode(imagenes[i]);
+        images.add(Image.memory(imageDecode));
+      }
+
+      // await showDialog(context: context, builder: (context) => MultipleBase64ImagesDisplay(images));
+      await showDialog(
+          context: context,
+          builder: (context) => CardImagesDisplay(images, imagenes),
+          barrierDismissible: false
+      );
+    } else {
+      return;
+    }
   }
 }
 
@@ -292,6 +310,49 @@ class MultipleImagesDisplay extends StatelessWidget {
                   child: kIsWeb
                       ? Image.network(file.path)
                       : Image.file(File(file.path))),
+            )
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          child: const Text('Aceptar'),
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+        ),
+        TextButton(
+          child: const Text('Cancelar'),
+          onPressed: () {
+            Navigator.pop(context, false);
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class SinglePhotoDisplay extends StatelessWidget {
+  /// The files containing the images
+  final File foto;
+
+  /// Default Constructor
+  SinglePhotoDisplay(this.foto);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('Foto tomada'),
+      // On web the filePath is a blob url
+      // while on other platforms it is a system path.
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Flexible(
+              child: kIsWeb
+                  ? Image.network(foto.path)
+                  : Image.file(File(foto.path)),
             )
           ],
         ),
@@ -356,7 +417,8 @@ class CardImagesDisplay extends StatelessWidget {
   final List<String> images_base64;
   /// Default Constructor
   CardImagesDisplay(this.images, this.images_base64);
-
+  
+  final TCardController _controller = TCardController();
 
   @override
   Widget build(BuildContext context) {
@@ -369,6 +431,7 @@ class CardImagesDisplay extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             TCard(
+              controller: _controller,
               size: const Size(256, 256),
               onEnd: () {
                 Navigator.pop(context);
@@ -421,9 +484,77 @@ class CardImagesDisplay extends StatelessWidget {
                       ],
                     ),
                   );
-            }
+                }
+              ),
             ),
-            )
+            const SizedBox(
+              height: 30,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                ElevatedButton.icon(
+                  icon: Icon(Icons.delete_forever, color: Colors.white),
+                  onPressed: () {
+                    print("Swipe a la izquierda");
+                    _controller.forward(direction: SwipDirection.Left);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.red,
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      top: 10,
+                      right: 15,
+                      bottom: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      side: const BorderSide(
+                        color: Colors.red,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  label: Text(
+                    "",
+                    style: GoogleFonts.ubuntu(
+                      fontSize: 16,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  icon: Icon(Icons.download, color: Colors.white),
+                  onPressed: () {
+                    print("Swipe a la derecha");
+                    _controller.forward(direction: SwipDirection.Right);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.green,
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      top: 10,
+                      right: 15,
+                      bottom: 10,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      side: const BorderSide(
+                        color: Colors.green,
+                        width: 2,
+                      ),
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                  ),
+                  label: Text(
+                    "",
+                    style: GoogleFonts.ubuntu(
+                      fontSize: 16,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ]
         ),
       ),
